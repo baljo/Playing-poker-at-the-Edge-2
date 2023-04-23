@@ -2,11 +2,13 @@
 
 # Introduction
 
-In this tutorial you will learn how you can sort playing cards using a *real* robot arm and TinyML (Tiny Machine Learning) running on an development board officially supported by Edge Impulse, but also how the concept easily can be adapted to e.g. sorting waste. 
+In this tutorial you will learn how you can sort playing cards using a *real* robot arm and TinyML (Tiny Machine Learning) running on an development board officially supported by Edge Impulse, but also how the concept easily can be adapted to e.g. sorting solid waste. 
 
 In [Part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1) you learned how to classify the playing cards themselves according to their colour, and so this tutorial will focus more on interpreting and utilising the signals provided by the xG24 board to control the robot. It is thus recommended to at least browse through Part 1 before reading Part 2.
 
 Hardware used in this tutorial is the aforementioned [SiLabs xG24 Dev board](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview) as well as the [Dobot Magician](https://www.dobot-robots.com/products/education/magician.html) robot arm. However, any other Python-programmable robot arm can most probably be adapted to work according to the steps in this tutorial. 
+
+![](3D-01.jpg)
 
 **Photo of Arducam + xG24 + Dobot**
 
@@ -50,7 +52,7 @@ For *waste data* same principles were used, where I used a mobile phone camera f
 
 ## Steps to Reproduce
 
-* Please see [part one](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce) for detailed steps how to collect images using a mobile phone and with the xG24-device and Arducam.
+* Please see [part one](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce) for detailed steps how to collect images when using a mobile phone and when using the xG24-device and Arducam.
 
 ## Collecting Images of Nonuniform Waste Material
 
@@ -66,21 +68,51 @@ It is relatively easy to develop a very robust ML-model when using poker playing
 
 *Answer: The first one is made of metal, the others of plastic.*
 
-Also, poker cards barely cause any shadows at all, but most waste material produce - depending on the light conditions - shadows, which can confuse a ML-model. For example, how can you know if the ML-model really is "seeing" the object itself, or only focusing on the  shadows it's causing? For this reason, I tried to vary the light conditions when collecting images by using different artifical light sources. In addition, I also collected some images using daylight (not easy in Finland in February...).
+Also, poker cards barely cause any shadows at all, but most waste material produce - depending on the light conditions - shadows, which can confuse a ML-model. For example, how can you know if the ML-model really is "seeing" the object itself, or only focusing on the  shadows it's causing? For this reason, I tried to vary the light conditions when collecting images by using different artifical light sources. In addition, I also collected some images using daylight (not easy in Finland in February with very short days...).
 
-In this project I collected images of 4 types of objects: paper, cardboard, metal, and plastic. In addition I also collected images where none of the objects where present, in practice mainly of the table I'd put the objects on.
+The objects used in this project were chosen so that they could be lifted with the robot's suction cup, thus they could not be of any size, form, or weight. I decided to collect images of four types of objects: paper, cardboard, metal, and plastic. In addition, I also collected images where none of the objects where present, in practice mainly of the table I'd put the objects on. For sure, sorting solid waste into only four classes might not be enough in a real scenario, obviously this is depending on the country and city where you live. At my workplace e.g., we sort using six bins: plastic, glass, metal, paper, cardboard, and biowaste. 
 
 ![](Waste-paper-01.jpg)
 
 ![](Waste-cardboard-01.jpg)
 
+I ended up with a total of 1353 images, very evenly divided into the five classes. Out of these images, I used the xG24-device and Arducam only for a few tens, as it takes so much more time to collect images compared to using a mobile phone camera. But even these few images made a difference, making the final model performing better!
+
+![](EI-03.png)
+
+# Building, Training, and Testing the Model
+After you've collected some data, you need to build and train the model. The main steps in this process are to create an impulse, extract features, and finally train the model. Again, with image classification and when using Edge Impulse, this is often pretty straightforward.
+
+## Steps to Reproduce
+
+The steps to build, train, and test the model are close to identical as [the ones in part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce-1), with the following comments:
+
+* Also here, I knew beforehand that the 256 kB RAM memory would put some constraints on what model configuration to use. Following that, I chose to use an image size of 96x96 pixels when creating the impulse, and MobileNetV1 when later training the model.
+* Instead of using `Resize mode:` `Squash` as with the poker cards, I used the default `Fit shortest axis`, although I doubt it matters much in this type of project.
+* After having trained with a few different configurations, I found that `MobileNetV1 96x96 0.25 (final layer: 64 neurons, 0.1 dropout)` gave most bang for the buck.
 
 
-# Data Collection Process
-Next we need to describe to a reader and demonstrate how data is collected.  Depending upon the type of the project, this might be done directly in the Edge Impulse Studio, via the use of a 3rd-party dataset, or data could be collected out in the field and later uploaded / ingested to Edge Impulse.  Data being captured should be explained, the specific process to capture it should be documented, and the loading of the data into Edge Impulse should be articulated as well.  Images will be helpful here, showing the device capturing data, or if you are making use of a pre-made dataset then you will need to describe where you acquired it, how you prepared the dataset for Edge Impulse, and what your upload process entails.  Pictures of the data capture and/or screenshots of loading the data will be needed.
+![](EI-05.png)
 
-# Training and Building the Model
-Similar to the Data Collection Process section, a thorough description of the process used to build and train a model is important, so that readers can follow along and replicate your work.  Describe the elements in the Studio, the actions you take, and why.  Talk about the need for Training and Testing data, and when creating an Impulse,  Processing and Learning block options, Feature generation, and algorithm selection (FOMO, MobileNet, Yolo, etc) available to train and build the model.  Explain the selections you make, and the reasoning behind your choices.  Again images should be used here, screenshots walking a user through the process are very helpful.
+
+* The trained model has an accuracy of 97.8 % which is actually quite good with this relatively sparse data. When looking at the few images it classified incorrectly, one can also understand why some of them can be challenging to predict.
+* It might be a coincidence, but all mispredicted images were taken using the Arducam. It has lower image quality than a modern mobile phone camera, and also needs more light to produce decent image quality, so this is something to consider when using Arducam.
+
+| Image                     | Label       | Predicted              |
+| -----------               | ----------- | -----------            |
+|![](Waste-paper-02.jpg)    | paper       | nothing (= table)      |
+|![](Waste-cardboard-02.jpg)| cardboard   | paper                  |
+|![](Waste-plastic-03.jpg)  | plastic     | metal                  |
+|![](Waste-cardboard-03.jpg)| cardboard   | metal                  |
+
+
+* In this project I later used [EON Tuner](https://docs.edgeimpulse.com/docs/edge-impulse-studio/eon-tuner) to search for a more optimal model, but as RAM memory is the main constraint when running ML on xG24, I could not use any of the suggested MobileNetV2 models. 
+* The estimated inference time on the xG24 device is quite similar as in part one
+
+![](EI-07.png)
+
+
+
 
 # Model Deployment
 Go into detail about the process of getting your resulting model into your application and onto your hardware.  This will of course vary by the target hardware, but explain what is occurring and how to flash your firmware, import the model if it’s a Linux device, or include a Library directly in your application.  Again describe the options presented to a user, and explain why you make the selections you do.  A few screenshots of the process would be useful.
@@ -105,3 +137,11 @@ Here we will go deeper into the problem that is being addressed.  We’ll want t
 
 # Components and Hardware Configuration
 If any additional components are needed to build the project, include a list / Bill of Materials.  Normally this is formatted in a bulleted list, and quantity needed, to build the project.  After that, a description of how to set up the hardware, attach any sensors or secondary devices, flash any firmware or operating systems, install needed applications, and ultimately reach a point where we’re ready for Edge Impulse in the project.  We’ll definitely want some pictures of the hardware build process, showing the journey and setup that will guide readers through the process.
+
+
+# Data Collection Process
+Next we need to describe to a reader and demonstrate how data is collected.  Depending upon the type of the project, this might be done directly in the Edge Impulse Studio, via the use of a 3rd-party dataset, or data could be collected out in the field and later uploaded / ingested to Edge Impulse.  Data being captured should be explained, the specific process to capture it should be documented, and the loading of the data into Edge Impulse should be articulated as well.  Images will be helpful here, showing the device capturing data, or if you are making use of a pre-made dataset then you will need to describe where you acquired it, how you prepared the dataset for Edge Impulse, and what your upload process entails.  Pictures of the data capture and/or screenshots of loading the data will be needed.
+
+
+# Training and Building the Model
+Similar to the Data Collection Process section, a thorough description of the process used to build and train a model is important, so that readers can follow along and replicate your work.  Describe the elements in the Studio, the actions you take, and why.  Talk about the need for Training and Testing data, and when creating an Impulse,  Processing and Learning block options, Feature generation, and algorithm selection (FOMO, MobileNet, Yolo, etc) available to train and build the model.  Explain the selections you make, and the reasoning behind your choices.  Again images should be used here, screenshots walking a user through the process are very helpful.
