@@ -24,6 +24,13 @@ Obviously a robot arm for educational use cannot be used for industrial usage, b
 
 # Components and Hardware Configuration
 
+## Software used
+* Edge Impulse
+* Python, any recent 3.x version should be ok
+    * pydobot library, install with `pip install pydobot`
+    * pyserial library, install with `pip install pyserial`
+    * 
+
 ## Hardware Used:
 * [SiLabs xG24-DK2601B EFR32xG24 Dev Kit](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview)
 * [Arducam B0067 2MP OV2640 SPI Camera for Arduino](https://www.welectron.com/Arducam-B0067-2MP-OV2640-SPI-Camera-for-Arduino_1)
@@ -36,7 +43,14 @@ Obviously a robot arm for educational use cannot be used for industrial usage, b
 * No special configuration is needed for the robot arm, this tutorial is however based on the suction cup being installed. 
 * The devices are connected through USB-cables, and using serial communication: `Robot arm  <==>  Computer  <==>  SiLabs & Arducam`
 
+## 3D-printing the Stand and the Case
+* STL-files are found at the [GitHub-page](https://github.com/baljo/Playing-poker-at-the-Edge-2)
+* Print with high quality, I printed with 0.15 mm accuracy, the three larger parts took over two hours each to print with my budget friendly, but slow printer. 
+* No support is needed when rotating the parts properly in the slicing software. As I don't have a heated bed, I printed with a raft.
+* I used only 10 % in-fill as the equipment is very lightweight
+* There are holes for screws, but apart from firmly attaching the camera front to the back, screws are strictly not needed. In the photo below I have not used screws, hence the skewness.
 
+![](3D-02.jpg)
 
 # Data Collection Process
 
@@ -50,11 +64,11 @@ For *waste data* same principles were used, where I used a mobile phone camera f
     * to use this with Edge Impulse, you first need to flash the Edge Impulse firmware, detailed steps are found in the [documentation](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-mcu-targets/silabs-xg24-devkit)
 * mobile phone camera (iPhone 12) was used for ~90 % of the data
 
- **Also here I noticed that the initial model performance in real situations, and when using the xG24-device was far from perfect** 
-
 ## Steps to Reproduce
 
 * Please see [part one](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce) for detailed steps how to collect images when using a mobile phone and when using the xG24-device and Arducam.
+* Also here I noticed that the initial model performance in real situations, and when using the xG24-device was far from perfect
+
 
 ## Collecting Images of Nonuniform Waste Material
 
@@ -113,7 +127,20 @@ The steps to build, train, and test the model are close to identical as [the one
 
 ![](EI-07.png)
 
+## Testing the Model
 
+Before deploying the model to the device itself, you should check how well it works on data it has not seen before. This is where the 15 % test data that was put aside comes into play. If the model performs poorly on test data, you can expect real performance to be even worse. But even a 100 % accuracy on test data does not guarantee success in real life.
+
+If the training performance is very good, but the test performance is poor, the reason might be that your model is overfitting on the training data. In that case you might need to collect more data, change the model or reduce its complexity. Now would be a good time to try the EON Tuner mentioned earlier.
+
+* To test the model from within Edge Impulse, just click on `Model testing` and then ´Classify all`
+* In my case, the testing resulted in 100 % accuracy, thus even better than the training performance. However, as only a very few of the images taken with Arducam might have ended up in the test category, and those images might be more challenging to predict, I wanted to confirm the model performance in real situations before taking the 100 % for granted!
+
+![](EI-09.png)
+
+# Model Deployment
+
+![](3D-03_1.jpg)
 
 
 # Model Deployment
