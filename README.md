@@ -52,13 +52,27 @@ For *waste data* same principles were used, where I used a mobile phone camera f
 
 * Please see [part one](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce) for detailed steps how to collect images using a mobile phone and with the xG24-device and Arducam.
 
-## Differences Between Images of Poker Cards and Waste
+## Collecting Images of Nonuniform Waste Material
 
-It is relatively easy to develop a very robust ML-model when using poker playing cards as they are uniform in size and have very good contrast. The same does however not apply when it comes to waste as waste comes in many different forms, colours, and sizes. Metal can be shining and reflective, but when painted might look very similar to plastic.
+It is relatively easy to develop a very robust ML-model when using poker playing cards as they are uniform in size and have very good contrast. The same does however not apply when it comes to waste as waste comes in many different forms, colours, and sizes. For example, metal can be shining and reflective, but when painted might look very similar to plastic. When looking at these pictures, perhaps you can guess which lids are made of metal, and which of plastic? 
 
 <br>
 
-![](Waste metal 01.png)
+![](Waste-metal-01.jpg)
+
+![](Waste-plastic-01.jpg)
+
+![](Waste-plastic-02.jpg)
+
+*Answer: The first one is made of metal, the others of plastic.*
+
+Also, poker cards barely cause any shadows at all, but most waste material produce - depending on the light conditions - shadows, which can confuse a ML-model. For example, how can you know if the ML-model really is "seeing" the object itself, or only focusing on the  shadows it's causing? For this reason, I tried to vary the light conditions when collecting images by using different artifical light sources. In addition, I also collected some images using daylight (not easy in Finland in February...).
+
+In this project I collected images of 4 types of objects: paper, cardboard, metal, and plastic. In addition I also collected images where none of the objects where present, in practice mainly of the table I'd put the objects on.
+
+![](Waste-paper-01.jpg)
+
+![](Waste-cardboard-01.jpg)
 
 
 
