@@ -8,7 +8,7 @@ In [Part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/
 
 Hardware used in this tutorial is the aforementioned [SiLabs xG24 Dev board](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview) as well as the [Dobot Magician](https://www.dobot-robots.com/products/education/magician.html) robot arm. However, any other Python-programmable robot arm can most probably be adapted to work according to the steps in this tutorial. 
 
-![](3D-01.jpg)
+![](3D-03_1.jpg)
 
 **Photo of Arducam + xG24 + Dobot**
 
@@ -20,7 +20,7 @@ In the second part of this tutorial you will learn how to adapt the card sorting
 
 Due to the serious issues the climate change is causing our planet, we need to take many actions to mitigate or at least reduce the effects from our overconsumption of resources. One of these actions is to sort and recycle as much as possible at the source, but also sort the inevitable remaining waste into metals, plastics, bio-waste, etc. for proper recycling or transformation into energy. 
 
-Obviously a robot arm for educational use cannot be used for industrial usage, but the general ideas learned through these two tutorials can be applied for up-scaling of sorting e.g. non-defective and defective products on a conveyor belt, unripe and ripe fruits, waste etc.  
+Obviously a robot arm for educational use cannot be used for industrial purposes, but the general ideas learned through these two tutorials can be applied for up-scaling of sorting e.g. non-defective and defective products on a conveyor belt, unripe and ripe fruits, waste etc.  
 
 # Components and Hardware Configuration
 
@@ -29,7 +29,7 @@ Obviously a robot arm for educational use cannot be used for industrial usage, b
 * Python, any recent 3.x version should be ok
     * pydobot library, install with `pip install pydobot`
     * pyserial library, install with `pip install pyserial`
-    * 
+    * Program that I wrote to sort waste with, using the Dobot robot arm: [PyDobot_sorting_waste.py](https://github.com/baljo/Playing-poker-at-the-Edge-2/blob/main/PyDobot_sorting_waste.py)
 
 ## Hardware Used:
 * [SiLabs xG24-DK2601B EFR32xG24 Dev Kit](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview)
@@ -40,7 +40,7 @@ Obviously a robot arm for educational use cannot be used for industrial usage, b
 
 ## Configure the Hardware
 * For details about configuring SiLabs and Arducam, check [tutorial 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#configure-the-hardware) 
-* No special configuration is needed for the robot arm, this tutorial is however based on the suction cup being installed. 
+* No special configuration is needed for the robot arm, just secure it is calibrated. This tutorial is based on the suction cup being installed. 
 * The devices are connected through USB-cables, and using serial communication: `Robot arm  <==>  Computer  <==>  SiLabs & Arducam`
 
 ## 3D-printing the Stand and the Case
@@ -138,9 +138,40 @@ If the training performance is very good, but the test performance is poor, the 
 
 ![](EI-09.png)
 
-# Model Deployment
+# Model Deployment and Go-live!
 
-![](3D-03_1.jpg)
+For deploying the ML-model to the xG24 kit, please use same steps as in [part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#model-deployment) to flash the firmware.
+
+## Go-live Preparations
+* Use the same waste as when collecting images, but try to also find similar, but not identical waste for later testing.
+* Connect your computer to Dobot and to the xG24 + Arducam
+* Place the Arducam so it points to the place where the robot will pick up waste
+
+### Dry Run
+* Reset or reconnect the device
+* Open a command prompt and run `edge-impulse-run-impulse --debug`, this will show inference results as a running log, but you can also see a live camera output in a browser window.
+    * Once you are satisfied with the performance, abort the operation by `Ctrl-c` or by closing the command prompt. If you forget this, the serial port is busy and can't be used by the Python program in next step.
+    * If you already now notice that the model is not performing as expected, go back and collect more images or tune the model.
+
+### Live Run
+* Connect the Dobot arm and power it on
+* Put the first waste object where it should be for picking it up with the suction cup
+* Open the Python-program `PyDobot_sorting_waste.py` with an IDE or text editor
+    * If you want to do a dry run using this program instead of the command prompt, please change from `only_inference = False` to `only_inference = True` in the main-function (see code snippet below)
+* Run the program, either from within an IDE or from a command prompt
+    * The external Pydobot library I'm using has sometimes challenges connecting to the robot, so you might need to press the **robot's** `Reset` button once or twice to get a connection from Python. The error messages in these cases are typically either `IndexError: index out of range` or `AttributeError: 'NoneType' object has no attribute 'params'`
+    * The program shows in the terminal/output window the inferencing results and how many items it has sorted.
+    * Watch and be amazed when the robot (hopefully) sorts your waste into four different stacks!
+    * "Feed" the waste eating robot with more waste!
+
+```
+def main():
+    global x,y,z,r,j1,j2,j3,j4
+    
+    only_inference = True
+    while only_inference == True:
+        label = inference()
+```
 
 
 # Model Deployment
