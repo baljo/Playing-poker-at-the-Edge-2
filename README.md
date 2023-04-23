@@ -36,6 +36,8 @@ Obviously a robot arm for educational use cannot be used for industrial usage, b
 * No special configuration is needed for the robot arm, this tutorial is however based on the suction cup being installed. 
 * The devices are connected through USB-cables, and using serial communication: `Robot arm  <==>  Computer  <==>  SiLabs & Arducam`
 
+
+
 # Data Collection Process
 
 As this project is partly a continuation of part one, please see the [Data Collection Process](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#data-collection-process) for how *poker card data* was collected. 
