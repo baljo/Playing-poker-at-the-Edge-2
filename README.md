@@ -29,7 +29,7 @@ Obviously a robot arm for educational use cannot be used for industrial purposes
 * Python, any recent 3.x version should be ok
     * pydobot library, install with `pip install pydobot`
     * pyserial library, install with `pip install pyserial`
-    * Program that I wrote to sort waste with, using the Dobot robot arm: [PyDobot_sorting_waste.py](https://github.com/baljo/Playing-poker-at-the-Edge-2/blob/main/PyDobot_sorting_waste.py)
+    * Programs that I wrote to sort waste with, using the Dobot robot arm: [PyDobot_sorting_waste.py](https://github.com/baljo/Playing-poker-at-the-Edge-2/blob/main/PyDobot_sorting_waste.py)
 
 ## Hardware Used:
 * [SiLabs xG24-DK2601B EFR32xG24 Dev Kit](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview)
@@ -37,6 +37,8 @@ Obviously a robot arm for educational use cannot be used for industrial purposes
 * [Pin Header 2.54mm 1x20 Pin](https://www.welectron.com/Pin-Header-254mm-1x20-Pin) for soldering to the SiLabs board
 * [Dobot Magician](https://www.dobot-robots.com/products/education/magician.html) robot arm
 * 3D-printer to print protective case and stand (Optional)
+* Playing cards, poker, UNO, etc.
+* Household solid waste of metal, plastic, paper, cardboard, etc.
 
 ## Configure the Hardware
 * For details about configuring SiLabs and Arducam, check [tutorial 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#configure-the-hardware) 
@@ -161,7 +163,7 @@ For deploying the ML-model to the xG24 kit, please use same steps as in [part 1]
 * Run the program, either from within an IDE or from a command prompt
     * The external Pydobot library I'm using has sometimes challenges connecting to the robot, so you might need to press the **robot's** `Reset` button once or twice to get a connection from Python. The error messages in these cases are typically either `IndexError: index out of range` or `AttributeError: 'NoneType' object has no attribute 'params'`
     * The program shows in the terminal/output window the inferencing results and how many items it has sorted.
-    * Watch and be amazed when the robot (hopefully) sorts your waste into four different stacks!
+    * Watch and be amazed when the robot (hopefully) sorts your waste into four different piles!
     * "Feed" the waste eating robot with more waste!
 
 ```
