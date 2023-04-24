@@ -2,7 +2,7 @@
 
 # Introduction
 
-In this tutorial you will learn how you can sort playing cards using a *real* robot arm and TinyML (Tiny Machine Learning) running on an development board officially supported by Edge Impulse, but also how the concept easily can be adapted to e.g. sorting solid waste. 
+In this tutorial you will learn how you can sort both poker cards and solid waste using a *real* robot arm and TinyML (Tiny Machine Learning) running on an development board officially supported by Edge Impulse, namely SiLabs xG24 Development Kit and Arducam. 
 
 In [Part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1) you learned how to classify the playing cards themselves according to their colour, and so this tutorial will focus more on interpreting and utilising the signals provided by the xG24 board to control the robot. It is thus recommended to at least browse through Part 1 before reading Part 2.
 
@@ -10,7 +10,9 @@ Hardware used in this tutorial is the aforementioned [SiLabs xG24 Dev board](htt
 
 ![](3D-03_1.jpg)
 
-**Photo of Arducam + xG24 + Dobot**
+![](Dobot_1.jpg)
+
+
 
 # Use-case Explanation
 
@@ -22,6 +24,8 @@ Due to the serious issues the climate change is causing our planet, we need to t
 
 Obviously a robot arm for educational use cannot be used for industrial purposes, but the general ideas learned through these two tutorials can be applied for up-scaling of sorting e.g. non-defective and defective products on a conveyor belt, unripe and ripe fruits, waste etc.  
 
+![](Sorting_cards.gif)
+
 # Components and Hardware Configuration
 
 ## Software used
@@ -29,7 +33,9 @@ Obviously a robot arm for educational use cannot be used for industrial purposes
 * Python, any recent 3.x version should be ok
     * pydobot library, install with `pip install pydobot`
     * pyserial library, install with `pip install pyserial`
-    * Programs that I wrote to sort waste with, using the Dobot robot arm: [PyDobot_sorting_waste.py](https://github.com/baljo/Playing-poker-at-the-Edge-2/blob/main/PyDobot_sorting_waste.py)
+* Python programs that I wrote to sort cards and waste with, using the Dobot robot arm:
+    * [PyDobot_sorting_cards.py](https://github.com/baljo/Playing-poker-at-the-Edge-2/blob/main/PyDobot_sorting_cards.py)
+    * [PyDobot_sorting_waste.py](https://github.com/baljo/Playing-poker-at-the-Edge-2/blob/main/PyDobot_sorting_waste.py)
 
 ## Hardware Used:
 * [SiLabs xG24-DK2601B EFR32xG24 Dev Kit](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview)
@@ -103,7 +109,7 @@ After you've collected some data, you need to build and train the model. The mai
 
 ## Steps to Reproduce
 
-The steps to build, train, and test the model are close to identical as [the ones in part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce-1), with the following comments:
+The steps to build, train, and test the waste classification model are close to identical as [the ones in part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#steps-to-reproduce-1), with the following comments:
 
 * Also here, I knew beforehand that the 256 kB RAM memory would put some constraints on what model configuration to use. Following that, I chose to use an image size of 96x96 pixels when creating the impulse, and MobileNetV1 when later training the model.
 * Instead of using `Resize mode:` `Squash` as with the poker cards, I used the default `Fit shortest axis`, although I doubt it matters much in this type of project.
@@ -140,14 +146,18 @@ If the training performance is very good, but the test performance is poor, the 
 
 ![](EI-09.png)
 
-# Model Deployment and Go-live!
+# Model Deployment
 
-For deploying the ML-model to the xG24 kit, please use same steps as in [part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#model-deployment) to flash the firmware.
+Regardless of if you are using the robot to sort cards or solid waste, the deployment steps are identical. For deploying the ML-model to the xG24 kit, please use same steps as in [part 1](https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/silabs-xg24-card-sorting-and-robotics-1#model-deployment) to flash the firmware. 
 
+# Go-live and Results
 ## Go-live Preparations
-* Use the same waste as when collecting images, but try to also find similar, but not identical waste for later testing.
+* If sorting cards, use same or similar cards as when collecting images
+* If sorting waste, use the same objects as when collecting images, but try to also find similar, but not identical waste for later testing.
 * Connect your computer to Dobot and to the xG24 + Arducam
-* Place the Arducam so it points to the place where the robot will pick up waste
+* Place the Arducam so it points to the place where the robot will pick up objects
+
+![](Dobot_inference_1.jpg)
 
 ### Dry Run
 * Reset or reconnect the device
@@ -157,12 +167,13 @@ For deploying the ML-model to the xG24 kit, please use same steps as in [part 1]
 
 ### Live Run
 * Connect the Dobot arm and power it on
-* Put the first waste object where it should be for picking it up with the suction cup
-* Open the Python-program `PyDobot_sorting_waste.py` with an IDE or text editor
+* Put the first object where it should be for picking it up with the suction cup
+* Open the Python-program `PyDobot_sorting_cards.py` or `PyDobot_sorting_waste.py` with an IDE or text editor
     * If you want to do a dry run using this program instead of the command prompt, please change from `only_inference = False` to `only_inference = True` in the main-function (see code snippet below)
+    * If you have used different labels than in these tutorials, please adjust the labels in the program `labels = ["back:", "black:", "no_card:", "red:"]`. Remember they have to be in alphabetical order, also remember to put the colon symbol `(:)` at the end of each label!
 * Run the program, either from within an IDE or from a command prompt
     * The external Pydobot library I'm using has sometimes challenges connecting to the robot, so you might need to press the **robot's** `Reset` button once or twice to get a connection from Python. The error messages in these cases are typically either `IndexError: index out of range` or `AttributeError: 'NoneType' object has no attribute 'params'`
-    * The program shows in the terminal/output window the inferencing results and how many items it has sorted.
+    * The program shows the inferencing results in the terminal/output window and how many items it has sorted.
     * Watch and be amazed when the robot (hopefully) sorts your waste into four different piles!
     * "Feed" the waste eating robot with more waste!
 
@@ -175,35 +186,13 @@ def main():
         label = inference()
 ```
 
+![](Sorting_waste.gif)
 
-# Model Deployment
-Go into detail about the process of getting your resulting model into your application and onto your hardware.  This will of course vary by the target hardware, but explain what is occurring and how to flash your firmware, import the model if it’s a Linux device, or include a Library directly in your application.  Again describe the options presented to a user, and explain why you make the selections you do.  A few screenshots of the process would be useful.
+## Results
+Both the card sorting and waste sorting models work quite well in practice, only a few times have objects been misclassified. Main challenges have been with the light conditions, as the Arducam seems to need much more light than a mobile phone camera. Other challenges have been more physical in that the robot's suction cup can't lift porous materials, and while it's a versatile robot, it has a limited range of movement.
 
-# Results
-Now it is time to show the finished project, deployed and running on the device.  Let’s talk about the results of running the model, presenting data, evidence, or statistics as appropriate.  Not all projects may meet their objectives, or perform well, but we should still present the outcomes truthfully.  If the project was extremely successful, then we can articulate on how the project could be scaled to truly make an impact.  If the project fell short of its goal, that is fine as well, and we can discuss what might have gone wrong, how the project could be improved, and provide lessons learned.  Screenshots or images might be needed here, as well.  
+Especially the waste sorting model can be further up-scaled to really make an impact. To do this wisely one should try to use existing waste data images instead of tediously collecting own images. I actually looked into this and found a few free databases online, one of them at [Kaggle](https://www.kaggle.com/datasets/mostafaabla/garbage-classification). I actually uploaded these >15000 images to Edge Impulse and have tried a few ML-models - as well as EON-tuner - to find an optimal one. This dataset consists of 12 classes, including bio-waste, clothes, shoes, three types of glass, etc.
 
 # Conclusion
-A brief summary recapping what you built, why, and the outcome you achieved.  A few sentences wrapping up the project, any next steps you might take, or giving advice to the reader on how they can take your project and replicate it as-is, iterate, expand, or even scale your work.  All Expert Projects should be Public Projects, so explain that a reader can Clone your work and has access to your data, model, and can review the steps you took.  Reinforce the human health or machine health use case, and provide any final links or attribution.  
+This was a series of two tutorials, part one getting up and running with xG24 Dev kit and Arducam together with Edge Impulse, and part two introducing how to sort cards or solid waste with a robot arm. I encourage you to replicate one or both of the projects, feel free to clone my Edge Impulse public projects. Why not try developing a ML-model that can classify cards into suits, and not only colours! Or, develop a ML-model classifying household waste typical for your place of living. While it is more tangible and often also fun using a physical robot arm or similar device to sort objects, I recommend you start with smaller steps, e.g. by connecting the edge device to a display, and showing the inferencing results there.
 
-
-# D O N E
-
-# Intro / Overview
-Briefly provide an introduction to your project. Address the following: what you are accomplishing, what the intended outcome is, highlight the use-case, describe the reasons for undertaking this project, and give a high level overview of the build. Provide a sentence or two for each of these aspects.  
-Summarize the problem you are addressing in one or two sentences, and how your solution makes an impact.  Be sure to also give a brief introduction to the hardware you have chosen and any key features, or reasons why the selected hardware is a good fit for your project. 
-Include a high-quality image of the hardware.
-
-# Problem Being Solved / Use-case Explanation
-Here we will go deeper into the problem that is being addressed.  We’ll want to provide evidence and data that the problem exists, and provide some possible improved outcomes and what we are hoping to achieve.  We need to establish credibility and demonstrate competence and innovation, so that readers have trust in the solution being presented.  This could be a good place to also further document the hardware features, sensors, or interfaces available on the board, describe what they do or what data they are intended to capture, and why that is important.  An image further detailing the problem or challenge would be useful, but might not be required depending upon the project.
-
-
-# Components and Hardware Configuration
-If any additional components are needed to build the project, include a list / Bill of Materials.  Normally this is formatted in a bulleted list, and quantity needed, to build the project.  After that, a description of how to set up the hardware, attach any sensors or secondary devices, flash any firmware or operating systems, install needed applications, and ultimately reach a point where we’re ready for Edge Impulse in the project.  We’ll definitely want some pictures of the hardware build process, showing the journey and setup that will guide readers through the process.
-
-
-# Data Collection Process
-Next we need to describe to a reader and demonstrate how data is collected.  Depending upon the type of the project, this might be done directly in the Edge Impulse Studio, via the use of a 3rd-party dataset, or data could be collected out in the field and later uploaded / ingested to Edge Impulse.  Data being captured should be explained, the specific process to capture it should be documented, and the loading of the data into Edge Impulse should be articulated as well.  Images will be helpful here, showing the device capturing data, or if you are making use of a pre-made dataset then you will need to describe where you acquired it, how you prepared the dataset for Edge Impulse, and what your upload process entails.  Pictures of the data capture and/or screenshots of loading the data will be needed.
-
-
-# Training and Building the Model
-Similar to the Data Collection Process section, a thorough description of the process used to build and train a model is important, so that readers can follow along and replicate your work.  Describe the elements in the Studio, the actions you take, and why.  Talk about the need for Training and Testing data, and when creating an Impulse,  Processing and Learning block options, Feature generation, and algorithm selection (FOMO, MobileNet, Yolo, etc) available to train and build the model.  Explain the selections you make, and the reasoning behind your choices.  Again images should be used here, screenshots walking a user through the process are very helpful.

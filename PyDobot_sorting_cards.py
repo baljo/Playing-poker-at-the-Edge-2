@@ -20,9 +20,12 @@ import os
 label     = ''
 labels    = ["back:", "black:", "no_card:", "red:"]
 
-norm_speed = 5500
-norm_acc   = 300
+norm_speed = 1500
+norm_acc   = 100
+
 start_z    = -70.8
+home_x     = 159
+home_y     = -157
 
 cards_lifted = 0                                        # How many cards have we lifted (= tried to lift!)
 infer_runs = 0
@@ -33,9 +36,9 @@ com_port = "COM14"
 
 available_ports = list_ports.comports()
 print(f'available ports: {[x.device for x in available_ports]}')
-port = available_ports[1].device
+port = "COM10" # available_ports[0].device
 
-use_Dobot = False
+use_Dobot = True
 if use_Dobot:
     device = pydobot.Dobot(port=port, verbose=False)
     device.speed(norm_speed, norm_acc)
@@ -143,21 +146,21 @@ def left45(leftwait):
     up(leftwait)
     
 def right45(rightwait):
-    device.move_to(90, -150, start_z + 10, r, wait=rightwait)
+    device.move_to(190, -9, start_z + 10, r, wait=rightwait)
     suction_off()
     up(rightwait)
     
 def right22_5(rwait):
-    device.move_to(225, 150, start_z + 10, r, wait=rwait)
+    device.move_to(145, 205, start_z + 10, r, wait=rwait)
     suction_off()
     up(rwait)
     
 def up(upwait):
-    device.move_to(200, -0, -10, r, wait=upwait)
+    device.move_to(home_x, home_y, -10, r, wait=upwait)
     #inference()
 
 def down(downwait):
-    device.move_to(200, -0, start_z - (cards_lifted * 0.325), r, wait=downwait)
+    device.move_to(home_x, home_y, start_z - (cards_lifted * 0.325), r, wait=downwait)
     
     
 def lift(liftwait):
@@ -173,7 +176,7 @@ def lift(liftwait):
 def main():
     global x,y,z,r,j1,j2,j3,j4
     
-    only_inference = True
+    only_inference = False
     while only_inference == True:
         label = inference()
         #time.sleep(.1)
@@ -191,21 +194,23 @@ def main():
         label = ""
     #    SerialObj.read_all()
         SerialObj.flushInput()
-        label = inference()
+        label_lst = inference()
+        label = label_lst[0]
+        print(label)
         
-        if label == "black:":
+        if label == "black":
             print("lifting black")
             lift(True)
             right45(False)
-        elif label == "red:":
+        elif label == "red":
             print("lifting red")
             lift(True)
             left45(False)
-        elif label == "back:":
+        elif label == "back":
             print("lifting back")
             lift(True)
             right22_5(False)
-        elif label == "no_card:":
+        elif label == "no_card":
             print("lifting no card")
         # else:
         #     print("uncertain")
