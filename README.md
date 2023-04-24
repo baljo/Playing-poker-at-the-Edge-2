@@ -171,6 +171,16 @@ Regardless of if you are using the robot to sort cards or solid waste, the deplo
 * Open the Python-program `PyDobot_sorting_cards.py` or `PyDobot_sorting_waste.py` with an IDE or text editor
     * If you want to do a dry run using this program instead of the command prompt, please change from `only_inference = False` to `only_inference = True` in the main-function (see code snippet below)
     * If you have used different labels than in these tutorials, please adjust the labels in the program `labels = ["back:", "black:", "no_card:", "red:"]`. Remember they have to be in alphabetical order, also remember to put the colon symbol `(:)` at the end of each label!
+    * Both programs are parsing the serial stream coming from the xG24-device and stripping away everything apart from the prediction and probability. This part was more challenging to program than I'd thought, partly as the program can start "midstream", partly due to the speed of the serial transmission. Here's how the serial stream might look like, i.e. same as when running `edge-impulse-run-impulse` from a command prompt:
+        ```
+        Predictions (DSP: 11 ms., Classification: 216 ms., Anomaly: 0 ms.):
+        back: 0.00000
+        black: 0.00000
+        no_card: 0.00391
+        red: 0.99609
+        ```
+
+
 * Run the program, either from within an IDE or from a command prompt
     * The external Pydobot library I'm using has sometimes challenges connecting to the robot, so you might need to press the **robot's** `Reset` button once or twice to get a connection from Python. The error messages in these cases are typically either `IndexError: index out of range` or `AttributeError: 'NoneType' object has no attribute 'params'`
     * The program shows the inferencing results in the terminal/output window and how many items it has sorted.
